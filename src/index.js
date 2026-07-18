@@ -9,32 +9,23 @@ export default {
 
     const bot = new Bot(botToken);
 
-    // دستورات پایه
-    bot.command("start", (ctx) => {
-      return ctx.reply("✅ سلام! جووراپ بات فعاله.\n\nفروش، هزینه، مشتری یا voice بفرست ثبت کنم.");
-    });
+    bot.command("start", (ctx) => ctx.reply("✅ سلام! جووراپ بات (@joorupbot) فعاله.\n\nفروش، هزینه، voice یا متن بفرست."));
 
-    bot.command("help", (ctx) => {
-      return ctx.reply("دستورات: /start\nفروش: ۵۰۰۰۰۰ تومان گوشی\nهزینه: ۲۰۰۰۰۰ اجاره");
-    });
-
-    // همه پیام‌ها
     bot.on("message", async (ctx) => {
       const msg = ctx.message;
-      
-      if (msg.voice || msg.video_note) {
-        await ctx.reply("🎤 Voice دریافت شد! (به زودی هوشمند transcript + ثبت می‌شه)");
+      if (msg.voice) {
+        await ctx.reply("🎤 Voice دریافت شد! (به زودی هوشمند ثبت می‌شه)");
       } else if (msg.text) {
-        await ctx.reply(`✅ دریافت شد:\n"${msg.text}"\n\nثبت موقت شد! (بعداً DB واقعی اضافه می‌کنیم)`);
+        await ctx.reply(`✅ دریافت شد: "${msg.text}"`);
       }
     });
 
     try {
       const update = await request.json();
       await bot.handleUpdate(update);
-      return new Response("OK", { status: 200 });
+      return new Response("OK");
     } catch (error) {
-      console.error("Error:", error);
+      console.error(error);
       return new Response("Error", { status: 500 });
     }
   }
