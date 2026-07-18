@@ -9,37 +9,42 @@ export default {
 
       if (!chatId) return new Response("OK");
 
-      let reply = "✅ دریافت شد!";
-
       const msg = update.message;
-      let operation = "";
+      let reply = "✅ دریافت شد!";
+      let operationSummary = "";
 
       if (msg.voice) {
-        operation = "Voice - به زودی transcript + ثبت هوشمند";
-        reply = "🎤 Voice دریافت شد. (transcript بعداً اضافه می‌شه)";
+        operationSummary = "Voice Message";
+        reply = "🎤 Voice دریافت شد.\n\nبه زودی transcript + ثبت هوشمند (مثلاً فروش X تومان)";
       } else if (msg.text) {
-        const text = msg.text.toLowerCase();
+        const text = msg.text;
 
-        if (text.includes("فروش") || text.includes("sell")) {
-          operation = `فروش: ${text}`;
-          reply = `💰 فروش ثبت شد: ${text}`;
-        } else if (text.includes("هزینه") || text.includes("cost")) {
-          operation = `هزینه: ${text}`;
-          reply = `📉 هزینه ثبت شد: ${text}`;
+        if (text.toLowerCase().includes("فروش") || text.includes("sell")) {
+          operationSummary = `فروش: ${text}`;
+          reply = `💰 فروش ثبت شد!\n${text}\n\n(در نسخه بعدی به صندوق و موجودی اضافه می‌شه)`;
+        } else if (text.toLowerCase().includes("هزینه") || text.includes("cost") || text.includes("خرج")) {
+          operationSummary = `هزینه: ${text}`;
+          reply = `📉 هزینه ثبت شد!\n${text}`;
+        } else if (text.toLowerCase().includes("موجودی") || text.includes("stock")) {
+          operationSummary = `موجودی: ${text}`;
+          reply = `📦 موجودی ثبت/پرسیده شد: ${text}`;
         } else {
-          reply = `📝 دریافت شد: ${msg.text}\n\nبرای ثبت: "فروش ۵۰۰۰۰۰ گوشی" یا "هزینه ۲۰۰۰۰۰ اجاره"`;
+          reply = `📝 پیام دریافت شد: "${text}"\n\nمثال:\nفروش ۱۲۰۰۰۰۰ گوشی\nهزینه ۳۰۰۰۰۰ اجاره`;
         }
       }
 
       // ارسال پاسخ
       await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({chat_id: chatId, text: reply})
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: reply
+        })
       });
 
-      // بعداً اینجا Telegram Cloud یا DB ذخیره می‌کنیم
-      console.log("Operation:", operation);
+      // Log برای آینده (بعداً به DB واقعی)
+      console.log("📊 Operation:", operationSummary, "User:", chatId);
 
       return new Response("OK");
     } catch (e) {
