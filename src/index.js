@@ -9,12 +9,15 @@ export default {
 
     const bot = new Bot(botToken);
 
-    bot.command("start", (ctx) => ctx.reply("✅ سلام! جووراپ بات (@joorupbot) فعاله.\n\nفروش، هزینه، voice یا متن بفرست."));
+    // Initialize bot (مهم برای Cloudflare)
+    await bot.init();
+
+    bot.command("start", (ctx) => ctx.reply("✅ سلام! جووراپ بات (@joorupbot) فعاله.\n\nفروش، هزینه، voice بفرست ثبت کنم."));
 
     bot.on("message", async (ctx) => {
       const msg = ctx.message;
       if (msg.voice) {
-        await ctx.reply("🎤 Voice دریافت شد! (به زودی هوشمند ثبت می‌شه)");
+        await ctx.reply("🎤 Voice دریافت شد!");
       } else if (msg.text) {
         await ctx.reply(`✅ دریافت شد: "${msg.text}"`);
       }
@@ -25,7 +28,7 @@ export default {
       await bot.handleUpdate(update);
       return new Response("OK");
     } catch (error) {
-      console.error(error);
+      console.error("Error:", error);
       return new Response("Error", { status: 500 });
     }
   }
