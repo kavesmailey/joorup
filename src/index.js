@@ -1,31 +1,33 @@
 import { Bot } from 'grammy';
 
-const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN || '');
-
-// Command پایه
-bot.command("start", (ctx) => ctx.reply("سلام! من جووراپ بات هستم. بگو چی ثبت کنم؟ (فروش، هزینه، مشتری)"));
-
-// Echo ساده + آماده Voice
-bot.on("message", async (ctx) => {
-  const msg = ctx.message;
-  
-  if (msg.voice || msg.video_note) {
-    await ctx.reply("🎤 Voice دریافت شد! (بعداً transcript + AI parse می‌کنیم)");
-    // اینجا بعداً logic Voice → Grok API اضافه می‌کنیم
-  } else if (msg.text) {
-    await ctx.reply(`دریافت شد: ${msg.text}\n\nثبت شد! (بعداً به DB ذخیره می‌شه)`);
-  }
-});
-
 export default {
-  async fetch(req, env) {
+  async fetch(request, env) {
+    const botToken = env.TELEGRAM_BOT_TOKEN;
+    if (!botToken) {
+      return new Response("TOKEN_MISSING", { status: 500 });
+    }
+
+    const bot = new Bot(botToken);
+
+    // Commandها
+    bot.command("start", (ctx) => ctx.reply("سلام! جووراپ بات فعاله ✅\n\nفروش، هزینه، یا مشتری ثبت کن."));
+
+    // پیام‌های معمولی + Voice
+    bot.on("message", async (ctx) => {
+      const msg = ctx.message;
+      if (msg.voice) {
+        await ctx.reply("🎤 Voice دریافت شد. به زودی transcript + ثبت هوشمند می‌شه!");
+      } else if (msg.text) {
+        await ctx.reply(`✅ دریافت شد: ${msg.text}\n\n(در نسخه بعدی به DB ذخیره می‌شه)`);
+      }
+    });
+
     try {
-      const bot = new Bot(env.TELEGRAM_BOT_TOKEN);
-      // grammY handler
-      await bot.handleUpdate(await req.json());
+      const update = await request.json();
+      await bot.handleUpdate(update);
       return new Response("OK");
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       return new Response("Error", { status: 500 });
     }
   }
