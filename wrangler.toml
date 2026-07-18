@@ -1,0 +1,7 @@
+name = "joorup-bot"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# TELEGRAM_BOT_TOKEN رو بعداً در Dashboard اضافه کن
