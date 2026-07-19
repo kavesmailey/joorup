@@ -2,6 +2,3 @@ name = "joorup"
 main = "src/index.js"
 compatibility_date = "2026-07-01"
 compatibility_flags = ["nodejs_compat"]
-
-[vars]
-TELEGRAM_BOT_TOKEN = "8552480240:AAHlIN3XyNG6Getdwl3MyNwpJZUEtYc7DAU"   # فعلاً برای تست
