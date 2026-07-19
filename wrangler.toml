@@ -2,3 +2,7 @@ name = "joorup"
 main = "src/index.js"
 compatibility_date = "2026-07-01"
 compatibility_flags = ["nodejs_compat"]
+
+[observability.logs]
+enabled = true
+invocation_logs = true
