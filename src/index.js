@@ -1,65 +1,53 @@
+// ذخیره ساده (در memory - بعداً KV/Telegram Cloud)
+const userData = new Map();
+
 export default {
   async fetch(request, env) {
-    console.log("Request received");
-
-    if (request.method !== "POST") {
-      console.log("Not POST");
-      return new Response("OK");
-    }
+    if (request.method !== "POST") return new Response("OK");
 
     try {
       const update = await request.json();
-      console.log("Update received:", JSON.stringify(update).substring(0, 200)); // log کوتاه
-
       const botToken = env.TELEGRAM_BOT_TOKEN;
-      const chatId = update.message?.chat?.id || update.callback_query?.message?.chat?.id;
+      const chatId = update.message?.chat?.id;
+      const userId = update.message?.from?.id?.toString();
 
-      if (!botToken) {
-        console.error("TOKEN_MISSING in env");
-        return new Response("OK");
-      }
+      if (!chatId || !botToken) return new Response("OK");
 
-      if (!chatId) {
-        console.error("No chatId in update");
-        return new Response("OK");
-      }
+      const msg = update.message;
+      let reply = "✅ دریافت شد!";
 
-      const msg = update.message || (update.callback_query && update.callback_query.message);
-      let replyText = "✅ جووراپ بات فعاله!";
+      let data = userData.get(userId) || { sales: [], costs: [], lastReport: null };
 
-      if (msg?.voice) {
-        replyText = "🎤 Voice دریافت شد!";
-      } else if (msg?.text) {
+      if (msg.voice) {
+        reply = "🎤 Voice دریافت شد. (transcript + ثبت به زودی)";
+      } else if (msg.text) {
         const text = msg.text.trim();
         const lower = text.toLowerCase();
 
         if (lower.includes("فروش") || lower.includes("sell")) {
-          replyText = `💰 فروش ثبت شد!\n${text}`;
+          data.sales.push(text);
+          reply = `💰 فروش ثبت شد!\n${text}\n\nمجموع فروش: ${data.sales.length} مورد`;
         } else if (lower.includes("هزینه") || lower.includes("cost") || lower.includes("خرج")) {
-          replyText = `📉 هزینه ثبت شد!\n${text}`;
+          data.costs.push(text);
+          reply = `📉 هزینه ثبت شد!\n${text}`;
         } else if (lower.includes("گزارش") || lower === "/report") {
-          replyText = "📊 گزارش: در حال توسعه...";
+          reply = `📊 گزارش شما:\nفروش: ${data.sales.length} مورد\nهزینه: ${data.costs.length} مورد`;
         } else {
-          replyText = `📝 دریافت شد: "${text}"`;
+          reply = `📝 "${text}" ثبت شد.\n\n/report برای گزارش`;
         }
       }
 
-      // ارسال با retry ساده
-      const sendRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      userData.set(userId, data);
+
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: replyText
-        })
+        body: JSON.stringify({ chat_id: chatId, text: reply })
       });
 
-      const sendResult = await sendRes.json();
-      console.log("Send result:", sendResult.ok ? "Success" : "Failed");
-
       return new Response("OK");
-    } catch (error) {
-      console.error("Critical error:", error);
+    } catch (e) {
+      console.error(e);
       return new Response("OK");
     }
   }
