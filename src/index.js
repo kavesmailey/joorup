@@ -10,23 +10,22 @@ export default {
       if (!chatId || !botToken) return new Response("OK");
 
       const msg = update.message;
-      let reply = "✅ دریافت شد!";
+      let reply = "✅ جووراپ بات فعاله!";
 
       if (msg.voice) {
         reply = "🎤 Voice دریافت شد. (transcript + AI parse به زودی)";
       } else if (msg.text) {
         const text = msg.text.trim();
+        const lower = text.toLowerCase();
 
-        // Parse هوشمندتر (کلمات کلیدی + الگو)
-        let type = "unknown";
-        if (/فروش|sell|فروخت|فروشم/i.test(text)) type = "فروش";
-        else if (/هزینه|cost|خرج|خرید|پرداخت|اجاره/i.test(text)) type = "هزینه";
-        else if (/مشتری|customer|کلاینت/i.test(text)) type = "مشتری";
-
-        if (type !== "unknown") {
-          reply = `✅ ${type} ثبت شد!\n${text}`;
+        if (lower.includes("فروش") || lower.includes("sell")) {
+          reply = `💰 فروش ثبت شد!\n${text}`;
+        } else if (lower.includes("هزینه") || lower.includes("cost") || lower.includes("خرج") || lower.includes("خرید")) {
+          reply = `📉 هزینه ثبت شد!\n${text}`;
+        } else if (lower.includes("گزارش") || lower === "/report") {
+          reply = "📊 گزارش لحظه‌ای (به زودی کامل)";
         } else {
-          reply = `📝 "${text}" دریافت شد.\n\nمثال: فروش ۱۲۰۰۰۰۰ گوشی\nهزینه ۳۰۰۰۰۰ اجاره`;
+          reply = `📝 دریافت شد: "${text}"`;
         }
       }
 
