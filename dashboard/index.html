@@ -2,12 +2,37 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>جووراپ داشبورد</title>
-  <style>body{font-family:Tahoma;padding:20px;}</style>
+  <style>
+    body { font-family: Tahoma; padding: 20px; background: #f8f9fa; text-align: right; }
+    h1 { color: #007bff; }
+    button { padding: 12px 20px; margin: 8px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    #result { margin-top: 20px; padding: 15px; background: white; border-radius: 8px; min-height: 100px; }
+  </style>
 </head>
 <body>
-  <h1>📊 داشبورد هومی‌بات</h1>
-  <p>ثبت عملیات در بات</p>
-  <p>گزارش امروز: آماده</p>
+  <h1>📊 داشبورد هومی‌بات (@joorupbot)</h1>
+  <p>سلام! اینجا خلاصه کسب‌وکارت.</p>
+  
+  <button onclick="registerSale()">💰 ثبت فروش سریع</button>
+  <button onclick="registerCost()">📉 ثبت هزینه</button>
+  <button onclick="showReport()">📊 گزارش امروز</button>
+
+  <div id="result"></div>
+
+  <script>
+    function registerSale() {
+      const amount = prompt("مبلغ فروش (تومان):", "500000");
+      document.getElementById('result').innerHTML = `<p>💰 فروش ${amount} تومان ثبت شد!</p>`;
+    }
+    function registerCost() {
+      const amount = prompt("مبلغ هزینه (تومان):", "200000");
+      document.getElementById('result').innerHTML = `<p>📉 هزینه ${amount} تومان ثبت شد!</p>`;
+    }
+    function showReport() {
+      document.getElementById('result').innerHTML = `<p>📈 فروش امروز: ۳ تراکنش<br>📉 هزینه: ۲ مورد<br>سود تخمینی: +۱۲۰۰۰۰۰ تومان</p>`;
+    }
+  </script>
 </body>
 </html>
